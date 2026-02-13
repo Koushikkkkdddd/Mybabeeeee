@@ -1,0 +1,262 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Valentine?</title>
+
+<style>
+body {
+  height: 100vh;
+  margin: 0;
+  background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Poppins', sans-serif;
+  overflow: hidden;
+  transition: background 0.3s ease;
+}
+
+.flash {
+  background: linear-gradient(135deg, #ff6b6b, #ffa8a8) !important;
+}
+
+.card {
+  background: white;
+  padding: 30px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  width: 300px;
+  z-index: 2;
+}
+
+.rose {
+  font-size: 70px;
+  margin-bottom: 10px;
+}
+
+h1 {
+  color: #e63946;
+  font-size: 22px;
+  margin-bottom: 6px;
+}
+
+.sure {
+  font-size: 16px;
+  height: 26px;
+  margin-bottom: 15px;
+  opacity: 0;
+  transition: opacity 0.3s ease, color 0.3s ease;
+}
+
+.shake { animation: shake 0.4s; }
+.pulse { animation: pulse 0.4s; }
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  50% { transform: translateX(6px); }
+  75% { transform: translateX(-6px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.buttons {
+  position: relative;
+  width: 240px;
+  height: 100px;
+  margin: auto;
+}
+
+button {
+  padding: 12px 22px;
+  font-size: 16px;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  position: absolute;
+  white-space: nowrap;
+}
+
+#yes {
+  background: #ff4d6d;
+  color: white;
+  left: 10px;
+  top: 55px;
+}
+
+#no {
+  background: #adb5bd;
+  color: white;
+  left: 130px;
+  top: 55px;
+}
+
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+</style>
+</head>
+
+<body>
+<canvas id="confetti"></canvas>
+<canvas id="tears"></canvas>
+
+<div class="card">
+  <div class="rose">🌹</div>
+  <h1>Shubangi,<br>will you be my Valentine?</h1>
+  <div class="sure" id="sureText"></div>
+
+  <div class="buttons" id="box">
+    <button id="yes">Yes 💖</button>
+    <button id="no">No 🙄</button>
+  </div>
+</div>
+
+<script>
+const noBtn = document.getElementById("no");
+const yesBtn = document.getElementById("yes");
+const box = document.getElementById("box");
+const sureText = document.getElementById("sureText");
+const body = document.body;
+
+const messages = [
+  "Are you sure? 🥺",
+  "Really?? 🥲🥲",
+  "That actually hurts 💔",
+  "Please think again 😭",
+  "Wow okay 😔",
+  "I'm crying fr 😭😭",
+  "This is emotional damage 💀",
+  "I'm still hopeful 😌"
+];
+
+const colors = ["#6c757d","#ff7b7b","#ff4d4d","#c1121f","#780000"];
+let noCount = 0;
+
+// NO BUTTON LOGIC
+function moveNo() {
+  const maxX = box.clientWidth - noBtn.offsetWidth;
+  const maxY = box.clientHeight - noBtn.offsetHeight;
+
+  noBtn.style.left = Math.random() * maxX + "px";
+  noBtn.style.top = Math.random() * maxY + "px";
+
+  sureText.textContent = messages[noCount % messages.length];
+  sureText.style.color = colors[Math.min(noCount, colors.length - 1)];
+  sureText.style.opacity = 1;
+
+  sureText.classList.remove("shake","pulse");
+  void sureText.offsetWidth;
+  sureText.classList.add("shake","pulse");
+
+  body.classList.add("flash");
+  setTimeout(()=>body.classList.remove("flash"),150);
+
+  if (noCount >= 2) startTears();
+  noCount++;
+}
+
+noBtn.addEventListener("mouseenter", moveNo);
+noBtn.addEventListener("touchstart", e => { e.preventDefault(); moveNo(); });
+
+// 😭 TEARS
+const tearCanvas = document.getElementById("tears");
+const tctx = tearCanvas.getContext("2d");
+tearCanvas.width = innerWidth;
+tearCanvas.height = innerHeight;
+let tears = [];
+let crying = false;
+
+function startTears(){
+  if(crying) return;
+  crying = true;
+  for(let i=0;i<40;i++){
+    tears.push({
+      x: Math.random()*tearCanvas.width,
+      y: Math.random()*tearCanvas.height,
+      speed: Math.random()*2+2,
+      size: Math.random()*24+16
+    });
+  }
+  drawTears();
+}
+
+function drawTears(){
+  tctx.clearRect(0,0,tearCanvas.width,tearCanvas.height);
+  tears.forEach(t=>{
+    tctx.font = `${t.size}px serif`;
+    tctx.fillText("😭",t.x,t.y);
+    t.y += t.speed;
+    if(t.y>tearCanvas.height) t.y=-20;
+  });
+  requestAnimationFrame(drawTears);
+}
+
+// 💖 YES SCREENSHOT ENDING
+yesBtn.onclick = () => {
+  document.body.innerHTML = `
+  <style>
+    body {
+      margin:0;
+      height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:linear-gradient(135deg,#ff758f,#ffb199);
+      font-family:Poppins,sans-serif;
+      overflow:hidden;
+    }
+    .end {
+      text-align:center;
+      color:white;
+      animation:fadeIn 1.2s ease;
+    }
+    h1 { font-size:36px; }
+    h2 { font-size:22px; font-weight:normal; }
+    p { opacity:.9; }
+    @keyframes fadeIn {
+      from{opacity:0;transform:scale(.95)}
+      to{opacity:1;transform:scale(1)}
+    }
+    .heart {
+      position:absolute;
+      font-size:24px;
+      animation:float 6s linear infinite;
+    }
+    @keyframes float {
+      from{transform:translateY(100vh);opacity:0}
+      to{transform:translateY(-10vh);opacity:1}
+    }
+  </style>
+
+  <div class="end">
+    <h1>She said YES 💕</h1>
+    <h2>Best Valentine ever, Shubieee🌹</h2>
+    <p>i needed to say this from a longggg timeeee, I LOVE YOUUU</p>
+  </div>
+  `;
+
+  for(let i=0;i<25;i++){
+    const h=document.createElement("div");
+    h.className="heart";
+    h.innerText="💖";
+    h.style.left=Math.random()*100+"vw";
+    h.style.animationDelay=Math.random()*5+"s";
+    document.body.appendChild(h);
+  }
+};
+</script>
+</body>
+</html>
